@@ -202,7 +202,7 @@ Here's an example of using metabintools as a Python library:
    exporter.export_fasta(Path("output/"), compress=False)
 
 Reading and Writing BINS files
------------------------------
+------------------------------
 
 .. code-block:: python
 
