@@ -1,6 +1,6 @@
 [project]
 name = "metabintools"
-version = "0.2.4"
+version = "0.2.5"
 description = "A toolkit for collating and manipulating metagenome bins."
 readme = "README.md"
 authors = [
