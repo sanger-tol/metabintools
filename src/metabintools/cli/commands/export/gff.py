@@ -24,25 +24,22 @@ from metabintools.export.binset_exporter import BinSetExporter
     help="(optional) Write each FASTA in a subdirectory named after the bin's group.",
 )
 @click.argument(
-    "binfile",
+    "binsfile",
     type=click.File("rb"),
     nargs=1,
     required=True,
     default="-",
-    help="Input binfile to export (use '-' for stdin)",
+    help="Input BINS file to export (use '-' for stdin)",
 )
 def gff(
-    binfile: IO,
+    binsfile: IO,
     outdir: str,
     group_gff: bool = False,
 ):
-    """Write stored bin annotations to a set of GFF files.
-
-    BINFILE: Path to the binfile to write GFFs for.
-    """
+    """Write stored bin annotations to a set of GFF files."""
     try:
-        logger.info(f"Reading binfile from {binfile.name}...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info(f"Reading BINS file from {binsfile.name}...")
+        binset = BinSet.read_binsfile(binsfile)
 
         outdir_path = Path(outdir)
         if not outdir_path.exists():

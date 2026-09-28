@@ -22,13 +22,13 @@ pip install metabintools
 
 ## Quick Start
 
-### 1. Create a binfile from your assembly
+### 1. Create a BINS file from your assembly
 
 ```bash
 metabintools import asm assembly.fasta -o binset.bins
 ```
 
-### 2. Add annotations to your binfile
+### 2. Add annotations to your BINS file
 
 ```bash
 metabintools import annotations binset.bins annotations.gff -o binset.bins
@@ -119,7 +119,7 @@ metabintools view --list-fields
 
 ### import
 
-Import data into a binfile with validation and error handling:
+Import data into a BINS file with validation and error handling:
 
 - **`metabintools import asm`** - Initialize from assembly FASTA
   - Can detect circular contigs from metaMDBG and myloasm
@@ -156,7 +156,7 @@ metabintools view --list-fields  # Show all available filter fields
 
 ### export
 
-Export data from a binfile:
+Export data from a BINS file:
 
 - **`metabintools export fasta`** - Export each bin to a FASTA file
 - **`metabintools export gff`** - Export each bin's annotations to a GFF file
@@ -164,7 +164,7 @@ Export data from a binfile:
 
 ### merge
 
-Combine multiple binfiles with progress tracking and validation:
+Combine multiple BINS files with progress tracking and validation:
 
 ```bash
 metabintools merge set1.bins set2.bins set3.bins -o merged.bins
@@ -172,7 +172,7 @@ metabintools merge set1.bins set2.bins set3.bins -o merged.bins
 
 ### trim
 
-Remove unused contigs from a binfile:
+Remove unused contigs from a BINS file:
 
 ```bash
 metabintools trim input.bins -o trimmed.bins
@@ -180,7 +180,7 @@ metabintools trim input.bins -o trimmed.bins
 
 ### rename
 
-Rename bins in a binfile with template support. Field options can be listed with `--list-fields`.
+Rename bins in a BINS file with template support. Field options can be listed with `--list-fields`.
 
 ```bash
 metabintools rename input.bins -n "bin_{tax_phylum}" -o output.bins

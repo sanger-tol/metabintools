@@ -31,24 +31,22 @@ from metabintools.export.binset_exporter import BinSetExporter
     default=True,
 )
 @click.argument(
-    "binfile",
+    "binsfile",
     type=click.File("rb"),
     nargs=1,
     required=True,
+    help="The BINS file to summarise.",
 )
 def summarise_bins(
-    binfile: IO,
+    binsfile: IO,
     output: str,
     include_statistics: bool = False,
     include_taxonomy: bool = False,
 ):
-    """Write a summary of the bins in the binfile to the output.
-
-    BINFILE: Path to the binfile to summarise
-    """
+    """Write a summary of the bins in the BINS file to the output."""
     try:
-        logger.info("Reading binfile(s)...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info("Reading BINS file(s)...")
+        binset = BinSet.read_binsfile(binsfile)
 
         output_path = Path(output)
         logger.info(f"Writing bin summary to {output_path}")

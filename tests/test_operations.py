@@ -503,11 +503,11 @@ class TestRoundtrip:
         # Serialize
         outfile = tmp_path / "filtered.bins"
         with open(outfile, "wb") as f:
-            BinSetExporter(filtered).write_binfile(f, compress=False)
+            BinSetExporter(filtered).write_binsfile(f, compress=False)
 
         # Deserialize
         with open(outfile, "rb") as f:
-            loaded = BinSet.read_binfile(f)
+            loaded = BinSet.read_binsfile(f)
 
         # Verify
         assert loaded.bins is not None
@@ -521,11 +521,11 @@ class TestRoundtrip:
         # Serialize
         outfile = tmp_path / "renamed.bins"
         with open(outfile, "wb") as f:
-            BinSetExporter(renamed).write_binfile(f, compress=True)
+            BinSetExporter(renamed).write_binsfile(f, compress=True)
 
         # Deserialize
         with open(outfile, "rb") as f:
-            loaded = BinSet.read_binfile(f)
+            loaded = BinSet.read_binsfile(f)
 
         # Verify renamed IDs persisted
         assert loaded.bins is not None
@@ -560,11 +560,11 @@ class TestRoundtrip:
         # Serialize
         outfile = tmp_path / "merged.bins"
         with open(outfile, "wb") as f:
-            BinSetExporter(merged).write_binfile(f, compress=False)
+            BinSetExporter(merged).write_binsfile(f, compress=False)
 
         # Deserialize
         with open(outfile, "rb") as f:
-            loaded = BinSet.read_binfile(f)
+            loaded = BinSet.read_binsfile(f)
 
         # Verify
         assert loaded.bins is not None
@@ -758,11 +758,11 @@ class TestQualityTools:
         # Serialize
         outfile = tmp_path / "quality.bins"
         with open(outfile, "wb") as f:
-            BinSetExporter(with_quality).write_binfile(f, compress=False)
+            BinSetExporter(with_quality).write_binsfile(f, compress=False)
 
         # Deserialize
         with open(outfile, "rb") as f:
-            loaded = BinSet.read_binfile(f)
+            loaded = BinSet.read_binsfile(f)
 
         # Verify quality scores preserved
         assert loaded.bins is not None

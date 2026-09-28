@@ -31,9 +31,15 @@ from metabintools.export.binset_exporter import BinSetExporter
     required=True,
 )
 @click.option("--output", "-o", type=click.File("wb"), default="-", required=False)
-@click.argument("binfile", type=click.File("rb"), required=True, default="-")
+@click.argument(
+    "binsfile",
+    type=click.File("rb"),
+    required=True,
+    default="-",
+    help="The BINS file to annotate",
+)
 def import_quality(
-    binfile: IO,
+    binsfile: IO,
     output: IO,
     quality: str,
     tool: QualityTool,
@@ -44,12 +50,10 @@ def import_quality(
     The quality TSV can come from CheckM, CheckM2, or BUSCO, or a manual user-provided TSV.
 
     A user-supplied TSV must have the fields File, Completeness, and Contamination.
-
-    BINFILE: a BINS file to add the quality to
     """
     try:
-        logger.info("Reading binfile...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info("Reading BINS file...")
+        binset = BinSet.read_binsfile(binsfile)
 
         if binset.bins is None:
             logger.error("No bins found in the BINS file.")
@@ -61,8 +65,8 @@ def import_quality(
         logger.info("Updating statistics...")
         out_binset = out_binset.update_statistics()
 
-        logger.info("Writing binfile...")
-        BinSetExporter(out_binset).write_binfile(output, compress=compress)
+        logger.info("Writing BINS file...")
+        BinSetExporter(out_binset).write_binsfile(output, compress=compress)
         logger.info("Quality import completed successfully.")
 
     except click.ClickException:

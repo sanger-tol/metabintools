@@ -26,15 +26,14 @@ from metabintools.import_data.assembly import parse_assembly_fasta
 )
 @click.option("--output", "-o", type=click.File("wb"), default="-", required=False)
 @click.argument(
-    "assembly", type=click.Path(exists=True, dir_okay=False, file_okay=True)
+    "assembly",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True),
+    help="The assembly to import.",
 )
 def import_assembly(
     assembly: str, assembler: Assembler | None, output: IO, compress: bool = False
 ):
-    """Import a metagenome assembly to initialise a BINS file.
-
-    ASSEMBLY: an (optionally gzip compressed) FASTA file containing the assembly.
-    """
+    """Import a metagenome assembly to initialise a BINS file."""
     try:
         assembly_path = Path(assembly)
         logger.info(f"Parsing assembly: {assembly_path.name}")
@@ -54,8 +53,8 @@ def import_assembly(
 
         binset = BinSet(contigs=parsed_assembly, bins=None)
 
-        logger.info("Writing binfile...")
-        BinSetExporter(binset).write_binfile(output, compress=compress)
+        logger.info("Writing BINS file...")
+        BinSetExporter(binset).write_binsfile(output, compress=compress)
         logger.info("Assembly import completed successfully.")
 
     except click.ClickException:

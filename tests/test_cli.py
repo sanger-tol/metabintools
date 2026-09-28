@@ -189,8 +189,9 @@ class TestImportCommands:
             [
                 "import",
                 "annotation",
-                str(test_binset_file),
+                "--gff",
                 str(gff_file),
+                str(test_binset_file),
                 "-o",
                 str(output_file),
             ],

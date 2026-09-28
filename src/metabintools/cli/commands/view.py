@@ -30,10 +30,10 @@ from metabintools.query.query_parser import get_available_fields
     help="List all available fields for filtering and exit.",
 )
 @click.argument(
-    "binfile",
+    "binsfile",
     type=click.File("rb"),
     required=False,
-    help="Input binfile to filter (use '-' for stdin)",
+    help="Input BINS file to filter",
 )
 @click.argument(
     "query",
@@ -41,16 +41,13 @@ from metabintools.query.query_parser import get_available_fields
     help="Filter query expression (e.g., 'group == \"high_quality\" and completeness >= 0.9')",
 )
 def view_bins(
-    binfile: IO | None,
+    binsfile: IO | None,
     query: str | None,
     output: IO,
     compress: bool = False,
     list_fields: bool = False,
 ):
-    """Filter bins from a binfile based on a query expression.
-
-    BINFILE: Input binfile to filter
-    QUERY: Filter query (e.g., 'group == "group1" and completeness >= 0.9')
+    """Filter bins from a BINS file based on a query expression.
 
     Examples:
         # Filter by group
@@ -72,23 +69,23 @@ def view_bins(
                 click.echo(f"  {field:20} - {description}")
             return
 
-        if binfile is None:
-            logger.error("BINFILE argument is required (unless using --list-fields)")
+        if binsfile is None:
+            logger.error("BINSFILE argument is required (unless using --list-fields)")
             raise click.ClickException(
-                "BINFILE argument is required (unless using --list-fields)"
+                "BINSFILE argument is required (unless using --list-fields)"
             )
 
-        logger.info("Reading binfile...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info("Reading BINS file...")
+        binset = BinSet.read_binsfile(binsfile)
 
         if query is None or query.strip() == "":
-            logger.info("No filter query provided, writing full binfile.")
-            BinSetExporter(binset).write_binfile(output, compress=compress)
+            logger.info("No filter query provided, writing full BINS file.")
+            BinSetExporter(binset).write_binsfile(output, compress=compress)
             return
 
         if binset.bins is None:
             logger.warning("No bins found in input file.")
-            BinSetExporter(binset).write_binfile(output, compress=compress)
+            BinSetExporter(binset).write_binsfile(output, compress=compress)
             return
 
         logger.info(f"Filtering {len(binset.bins)} bins with query: {query}")
@@ -103,8 +100,8 @@ def view_bins(
             f"of {len(binset.bins)} bins matched."
         )
 
-        logger.info("Writing filtered binfile...")
-        BinSetExporter(filtered_binset).write_binfile(output, compress=compress)
+        logger.info("Writing filtered BINS file...")
+        BinSetExporter(filtered_binset).write_binsfile(output, compress=compress)
         logger.info("Filter operation completed successfully.")
 
     except click.ClickException:

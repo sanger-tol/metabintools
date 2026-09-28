@@ -4,7 +4,7 @@ from typing import IO
 import click
 from loguru import logger
 
-from metabintools.bin_utils import find_binfiles
+from metabintools.bin_utils import find_binsfiles
 from metabintools.dataclasses.binset import BinSet
 from metabintools.export.binset_exporter import BinSetExporter
 
@@ -30,7 +30,13 @@ from metabintools.export.binset_exporter import BinSetExporter
     required=False,
 )
 @click.option("--output", "-o", type=click.File("wb"), default="-", required=False)
-@click.argument("binfile", type=click.File("rb"), required=True, default="-")
+@click.argument(
+    "binsfile",
+    type=click.File("rb"),
+    required=True,
+    default="-",
+    help="The BINS file to add bins to.",
+)
 @click.argument(
     "fasta",
     type=click.Path(exists=True, dir_okay=True, file_okay=True),
@@ -39,25 +45,21 @@ from metabintools.export.binset_exporter import BinSetExporter
     help="Bin FASTA files, or directories containing bin FASTA files",
 )
 def import_binset(
-    binfile: IO,
+    binsfile: IO,
     fasta: list[str],
     group: str,
     output: IO,
     compress: bool = False,
     binsplit_separator: str | None = None,
 ):
-    """Add a set of bins to a BINS file.
-
-    BINFILE: a BINS file to add the bins to
-    FASTA: a list of bin FASTA files, or alternatively a directories containing bin FASTA files
-    """
+    """Add a set of bins to a BINS file."""
     try:
-        logger.info("Reading binfile...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info("Reading BINS file...")
+        binset = BinSet.read_binsfile(binsfile)
 
         logger.info(f"Locating bin files from {len(fasta)} input(s)...")
         bin_directories_files = [
-            find_binfiles(Path(dir)) for dir in fasta if Path(dir).is_dir()
+            find_binsfiles(Path(dir)) for dir in fasta if Path(dir).is_dir()
         ]
         bins_direct_files = [Path(file) for file in fasta if Path(file).is_file()]
         bin_files = [
@@ -81,8 +83,8 @@ def import_binset(
             logger.error(f"Failed to add bins: {e}")
             raise click.ClickException(f"Failed to add bins: {e}")
 
-        logger.info("Writing binfile...")
-        BinSetExporter(out_binset).write_binfile(output, compress=compress)
+        logger.info("Writing BINS file...")
+        BinSetExporter(out_binset).write_binsfile(output, compress=compress)
         logger.info("Binset import completed successfully.")
 
     except click.ClickException:

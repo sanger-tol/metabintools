@@ -11,7 +11,7 @@ class BinSetExporter:
     def __init__(self, binset):
         self.binset = binset
 
-    def write_binfile(self, file: IO, compress: bool = False, level: int = 3):
+    def write_binsfile(self, file: IO, compress: bool = False, level: int = 3):
         """
         Write the BinSet to a binary stream, optionally compressing it with zstd.
 

@@ -18,6 +18,12 @@ from metabintools.export.binset_exporter import BinSetExporter
     help="(optional) Compress the output using zstd.",
 )
 @click.option(
+    "--coverage",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True),
+    help="Coverage file with contig-level coverage information",
+    required=True,
+)
+@click.option(
     "--tool",
     type=click.Choice(CoverageTool),
     help="Tool used to estimate coverage",
@@ -25,15 +31,15 @@ from metabintools.export.binset_exporter import BinSetExporter
     default=CoverageTool.metabat,
 )
 @click.option("--output", "-o", type=click.File("wb"), default="-", required=False)
-@click.argument("binfile", type=click.File("rb"), required=True, default="-")
 @click.argument(
-    "coverage",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True),
-    help="Coverage file with contig-level coverage information",
+    "binsfile",
+    type=click.File("rb"),
     required=True,
+    default="-",
+    help="The BINS file to annotate",
 )
 def import_coverage(
-    binfile: IO,
+    binsfile: IO,
     coverage: str,
     output: IO,
     tool: CoverageTool,
@@ -42,12 +48,10 @@ def import_coverage(
     """Add quality scores to a BINS file from a coverage file.
 
     The coverage file must come from Metabat2's jgi_summarize_bam_depths script.
-
-    BINFILE: a BINS file to add the coverage to
     """
     try:
-        logger.info("Reading binfile...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info("Reading BINS file...")
+        binset = BinSet.read_binsfile(binsfile)
 
         logger.info(f"Adding coverage data from {Path(coverage).name}...")
         out_binset = binset.add_contig_coverage(Path(coverage), tool)
@@ -55,8 +59,8 @@ def import_coverage(
         logger.info("Updating statistics...")
         out_binset = out_binset.update_statistics()
 
-        logger.info("Writing binfile...")
-        BinSetExporter(out_binset).write_binfile(output, compress=compress)
+        logger.info("Writing BINS file...")
+        BinSetExporter(out_binset).write_binsfile(output, compress=compress)
         logger.info("Coverage import completed successfully.")
 
     except click.ClickException:

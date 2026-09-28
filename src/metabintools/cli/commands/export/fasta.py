@@ -38,27 +38,24 @@ from metabintools.export.binset_exporter import BinSetExporter
     help="(optional) Write each FASTA in a subdirectory named after the bin's group.",
 )
 @click.argument(
-    "binfile",
+    "binsfile",
     type=click.File("rb"),
     nargs=1,
     required=True,
     default="-",
-    help="Input binfile to export (use '-' for stdin)",
+    help="Input binsfile to export from",
 )
 def fasta(
-    binfile: IO,
+    binsfile: IO,
     outdir: str,
     compress: bool = False,
     preserve_headers: bool = False,
     group_fasta: bool = False,
 ):
-    """Export a BINS file to FASTA.
-
-    BINFILE: Path to the binfile to export FASTA for.
-    """
+    """Export a BINS file to FASTA."""
     try:
-        logger.info(f"Reading binfile from {binfile.name}...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info(f"Reading BINS file from {binsfile.name}...")
+        binset = BinSet.read_binsfile(binsfile)
 
         outdir_path = Path(outdir)
         if not outdir_path.exists():

@@ -38,22 +38,20 @@ from metabintools.query.query_parser import get_available_fields
     help="List all available fields for filtering and exit.",
 )
 @click.argument(
-    "binfile",
+    "binsfile",
     type=click.File("rb"),
     nargs=1,
     required=True,
+    help="Input BINS file to rename bins in.",
 )
 def rename_bins(
-    binfile: IO,
+    binsfile: IO,
     output: IO,
     bin_name: str,
     list_fields: bool = False,
     compress: bool = False,
 ):
-    """Rename bins in a BINS file.
-
-    BINFILE: Path to the BINS file to rename bins in.
-    """
+    """Rename bins in a BINS file."""
     try:
         if list_fields:
             click.echo("Available fields for filtering:")
@@ -61,14 +59,14 @@ def rename_bins(
                 click.echo(f"  {field:20} - {description}")
             return
 
-        logger.info(f"Reading binfile from {binfile.name}...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info(f"Reading BINSfile from {binsfile.name}...")
+        binset = BinSet.read_binsfile(binsfile)
 
         logger.info(f"Renaming bins with template: {bin_name}")
         trimmed_binset = binset.rename_bins(bin_name)
 
-        logger.info("Writing renamed binfile...")
-        BinSetExporter(trimmed_binset).write_binfile(output, compress=compress)
+        logger.info("Writing renamed BINS file...")
+        BinSetExporter(trimmed_binset).write_binsfile(output, compress=compress)
         logger.info("Rename operation completed successfully.")
 
     except OSError as e:

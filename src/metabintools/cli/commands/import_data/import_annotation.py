@@ -18,29 +18,32 @@ from metabintools.export.binset_exporter import BinSetExporter
     help="(optional) Compress the output using zstd.",
 )
 @click.option(
+    "--gff",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True),
+    help="The GFF file to add the annotations from.",
+    required=True,
+)
+@click.option(
     "--overwrite",
     type=bool,
     help="Overwrite existing annotations if they already exist",
     required=False,
 )
 @click.option("--output", "-o", type=click.File("wb"), default="-", required=False)
-@click.argument("binfile", type=click.File("rb"), required=True, default="-")
 @click.argument(
-    "gff",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True),
-    help="The GFF file to add the annotations from.",
+    "binsfile",
+    type=click.File("rb"),
     required=True,
+    default="-",
+    help="Input BINS file to add annotations to.",
 )
 def import_annotation(
-    binfile: IO, gff: str, output: IO, compress: bool = False, overwrite: bool = False
+    binsfile: IO, gff: str, output: IO, compress: bool = False, overwrite: bool = False
 ):
-    """Add annotations from a GFF file to a BINS file
-
-    BINFILE: a BINS file to add the annotations to.
-    """
+    """Add annotations from a GFF file to a BINS file"""
     try:
-        logger.info("Reading binfile...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info("Reading BINS file...")
+        binset = BinSet.read_binsfile(binsfile)
 
         logger.info(f"Adding annotations from {Path(gff).name}...")
         try:
@@ -54,8 +57,8 @@ def import_annotation(
         logger.info("Updating statistics...")
         annotated_binset = annotated_binset.update_statistics()
 
-        logger.info("Writing binfile...")
-        BinSetExporter(annotated_binset).write_binfile(output, compress=compress)
+        logger.info("Writing BINS file...")
+        BinSetExporter(annotated_binset).write_binsfile(output, compress=compress)
         logger.info("Annotation import completed successfully.")
 
     except click.ClickException:

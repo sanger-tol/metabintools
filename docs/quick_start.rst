@@ -14,7 +14,7 @@ Start with your metagenomic assembly in FASTA format:
 
    metabintools import asm metagenome.fasta -o project.bins
 
-This creates a new binfile containing all contigs from your assembly.
+This creates a new BINS file containing all contigs from your assembly.
 
 **Step 2: Add bins from your binner**
 

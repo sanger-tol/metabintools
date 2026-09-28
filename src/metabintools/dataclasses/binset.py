@@ -47,7 +47,7 @@ class BinSet(BaseModel):
         return bins
 
     @classmethod
-    def read_binfile(cls, file: IO) -> "BinSet":
+    def read_binsfile(cls, file: IO) -> "BinSet":
         """
         Read a BinSet from a binary stream, automatically detecting zstd compression.
 

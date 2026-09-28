@@ -22,36 +22,33 @@ from metabintools.operations.merge import merge_binsets
     type=click.File("wb"),
     default="-",
     required=False,
-    help="Output file for merged binfiles (defaults to stdout)",
+    help="Output file for merged BINS files (defaults to stdout)",
 )
 @click.argument(
-    "binfiles",
+    "binsfiles",
     type=click.File("rb"),
     nargs=-1,
     required=True,
-    help="Input binfiles to merge",
+    help="Input BINS files to merge",
 )
 def merge(
-    binfiles: list[IO],
+    binsfiles: list[IO],
     output: IO,
     compress: bool = False,
 ):
-    """Merge a set of binfiles together.
-
-    BINFILES: List of binfiles to merge
-    """
+    """Merge a set of BINS files together."""
     try:
-        logger.info(f"Reading {len(binfiles)} binfile(s)...")
+        logger.info(f"Reading {len(binsfiles)} BINS file(s)...")
         binsets = []
-        for i, binfile in enumerate(binfiles, 1):
-            logger.info(f"Reading binfile {i}/{len(binfiles)}: {binfile.name}")
-            binsets.append(BinSet.read_binfile(binfile))
+        for i, binsfile in enumerate(binsfiles, 1):
+            logger.info(f"Reading BINS file {i}/{len(binsfiles)}: {binsfile.name}")
+            binsets.append(BinSet.read_binsfile(binsfile))
 
-        logger.info(f"Merging {len(binfiles)} binfiles...")
+        logger.info(f"Merging {len(binsfiles)} BINS files...")
         merged = merge_binsets(binsets)
 
-        logger.info("Writing merged binfile...")
-        BinSetExporter(merged).write_binfile(output, compress=compress)
+        logger.info("Writing merged BINS file...")
+        BinSetExporter(merged).write_binsfile(output, compress=compress)
         logger.info("Merge operation completed successfully.")
 
     except click.ClickException:

@@ -223,7 +223,7 @@ class TestBinSet:
         outfile = tmp_path / "test.bins"
 
         with open(outfile, "wb") as f:
-            BinSetExporter(binset).write_binfile(f, compress=False)
+            BinSetExporter(binset).write_binsfile(f, compress=False)
 
         assert outfile.exists()
         with open(outfile, "rb") as f:
@@ -238,7 +238,7 @@ class TestBinSet:
         outfile = tmp_path / "test.bins.zstd"
 
         with open(outfile, "wb") as f:
-            BinSetExporter(binset).write_binfile(f, compress=True)
+            BinSetExporter(binset).write_binsfile(f, compress=True)
 
         assert outfile.exists()
         with open(outfile, "rb") as f:
@@ -253,10 +253,10 @@ class TestBinSet:
         outfile = tmp_path / "test.bins"
 
         with open(outfile, "wb") as f:
-            BinSetExporter(binset).write_binfile(f, compress=False)
+            BinSetExporter(binset).write_binsfile(f, compress=False)
 
         with open(outfile, "rb") as f:
-            loaded = BinSet.read_binfile(f)
+            loaded = BinSet.read_binsfile(f)
 
         assert len(loaded.contigs) == len(binset.contigs)
         assert loaded.bins is not None

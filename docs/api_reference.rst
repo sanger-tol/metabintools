@@ -201,7 +201,7 @@ Here's an example of using metabintools as a Python library:
    exporter = BinSetExporter(filtered)
    exporter.export_fasta(Path("output/"), compress=False)
 
-Reading and Writing BinFiles
+Reading and Writing BINS files
 -----------------------------
 
 .. code-block:: python
@@ -209,9 +209,9 @@ Reading and Writing BinFiles
    from metabintools.dataclasses.binset import BinSet
    from metabintools.export.binset_exporter import BinSetExporter
 
-   # Read a binfile
+   # Read a BINS file
    with open("project.bins", "rb") as f:
-       binset = BinSet.read_binfile(f)
+       binset = BinSet.read_binsfile(f)
 
    # Perform operations
    filtered = binset.filter_bins("tax_phylum == 'Bacteroidetes'")
@@ -219,4 +219,4 @@ Reading and Writing BinFiles
    # Write back (optionally compressed)
    with open("output.bins.zstd", "wb") as f:
        exporter = BinSetExporter(filtered)
-       exporter.write_binfile(f, compress=True)
+       exporter.write_binsfile(f, compress=True)

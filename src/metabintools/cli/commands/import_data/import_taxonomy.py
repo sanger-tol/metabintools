@@ -30,9 +30,15 @@ from metabintools.export.binset_exporter import BinSetExporter
     required=True,
 )
 @click.option("--output", "-o", type=click.File("wb"), default="-", required=False)
-@click.argument("binfile", type=click.File("rb"), required=True, default="-")
+@click.argument(
+    "binsfile",
+    type=click.File("rb"),
+    required=True,
+    default="-",
+    help="The BINS file to annotate",
+)
 def import_taxonomy(
-    binfile: IO,
+    binsfile: IO,
     output: IO,
     taxonomy: str,
     tool: TaxonomyTool,
@@ -43,12 +49,10 @@ def import_taxonomy(
     The taxonomy TSV can come from GTDB-Tk or GTDB-Tk's gtdb_to_ncbi_majority_vote.py script, or a manual user-provided TSV.
 
     A manual TSV must have the fields File and Classification (a lineage string of format k__.*;p__.*...).
-
-    BINFILE: a BINS file to add the taxonomy to
     """
     try:
-        logger.info("Reading binfile...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info("Reading BINS file...")
+        binset = BinSet.read_binsfile(binsfile)
 
         if binset.bins is None:
             logger.error("No bins found in the BINS file.")
@@ -57,8 +61,8 @@ def import_taxonomy(
         logger.info(f"Adding taxonomy from {Path(taxonomy).name}...")
         out_binset = binset.add_bin_taxonomy(Path(taxonomy), tool)
 
-        logger.info("Writing binfile...")
-        BinSetExporter(out_binset).write_binfile(output, compress=compress)
+        logger.info("Writing BINS file...")
+        BinSetExporter(out_binset).write_binsfile(output, compress=compress)
         logger.info("Taxonomy import completed successfully.")
 
     except click.ClickException:

@@ -17,7 +17,7 @@ def get_basename(file: Path | str) -> str:
         return file.name.rsplit(".", 1)[0]
 
 
-def find_binfiles(directory: Path) -> list[Path]:
+def find_binsfiles(directory: Path) -> list[Path]:
     return [
         p
         for p in directory.glob("*")

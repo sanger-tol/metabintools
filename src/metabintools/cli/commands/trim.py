@@ -24,29 +24,27 @@ from metabintools.export.binset_exporter import BinSetExporter
     help="Output file for trimmed bins (defaults to stdout)",
 )
 @click.argument(
-    "binfile",
+    "binsfile",
     type=click.File("rb"),
     nargs=1,
     required=True,
+    help="Input BINS file to trim.",
 )
 def trim(
-    binfile: IO,
+    binsfile: IO,
     output: IO,
     compress: bool = False,
 ):
-    """Trim a BINS file by removing unreferenced contigs.
-
-    BINFILE: Path to the BINS file to trim
-    """
+    """Trim a BINS file by removing unreferenced contigs."""
     try:
-        logger.info(f"Reading binfile from {binfile.name}...")
-        binset = BinSet.read_binfile(binfile)
+        logger.info(f"Reading BINS file from {binsfile.name}...")
+        binset = BinSet.read_binsfile(binsfile)
 
         logger.info("Trimming unreferenced contigs...")
         trimmed_binset = binset.remove_unreferenced_contigs()
 
-        logger.info("Writing trimmed binfile...")
-        BinSetExporter(trimmed_binset).write_binfile(output, compress=compress)
+        logger.info("Writing trimmed BINS file...")
+        BinSetExporter(trimmed_binset).write_binsfile(output, compress=compress)
         logger.info("Trim operation completed successfully.")
 
     except OSError as e:

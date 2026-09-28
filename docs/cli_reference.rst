@@ -11,12 +11,12 @@ Note that the standard binary is called ``metabintools``, but the binary ``binto
 Import Commands
 ===============
 
-The ``import`` group contains commands for adding data to a binfile.
+The ``import`` group contains commands for adding data to a BINS file.
 
 import asm
 ----------
 
-Import a metagenomic assembly to initialize a binfile.
+Import a metagenomic assembly to initialize a BINS file.
 
 .. code-block:: bash
 
@@ -30,7 +30,7 @@ Options:
 
 - ``--assembler {spades,megahit,flye,metamdbg,myloasm,hifiasm_meta}``: Assembler used to generate the assembly (optional)
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Features:
 
@@ -51,11 +51,11 @@ Add bins from binning tool output.
 
 .. code-block:: bash
 
-   metabintools import binset BINFILE FASTA [FASTA ...] --group NAME [OPTIONS]
+   metabintools import binset BINSFILE FASTA [FASTA ...] --group NAME [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Existing binfile to add bins to (use ``-`` for stdin)
+- ``BINSFILE``: Existing BINS file to add bins to (use ``-`` for stdin)
 - ``FASTA``: Bin FASTA files or directories containing them
 
 Options:
@@ -63,7 +63,7 @@ Options:
 - ``--group NAME``: Name for this bin group (required)
 - ``--binsplit-separator SEP``: Separator for recovering contig names (e.g., ":" for VAMB/SemiBin2)
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Example:
 
@@ -78,18 +78,18 @@ Add GFF3 annotations to contigs.
 
 .. code-block:: bash
 
-   metabintools import annotation BINFILE GFF [OPTIONS]
+   metabintools import annotation BINSFILE GFF [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to annotate (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to annotate (use ``-`` for stdin)
 - ``GFF``: GFF3 annotation file (path to file)
 
 Options:
 
 - ``--overwrite``: Overwrite existing annotations (flag, default: false)
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Example:
 
@@ -104,18 +104,18 @@ Add coverage data to contigs.
 
 .. code-block:: bash
 
-   metabintools import coverage BINFILE COVERAGE [OPTIONS]
+   metabintools import coverage BINSFILE COVERAGE [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to add coverage to (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to add coverage to (use ``-`` for stdin)
 - ``COVERAGE``: Coverage file from Metabat2's jgi_summarize_bam_depths script
 
 Options:
 
 - ``--tool {metabat}``: Tool that generated the coverage file (default: metabat)
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Example:
 
@@ -130,18 +130,18 @@ Add quality scores from binning assessment tools.
 
 .. code-block:: bash
 
-   metabintools import quality BINFILE --quality FILE --tool TOOL [OPTIONS]
+   metabintools import quality BINSFILE --quality FILE --tool TOOL [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to add quality to (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to add quality to (use ``-`` for stdin)
 
 Options:
 
 - ``--quality FILE``: Quality assessment file (required)
 - ``--tool {checkm,checkm2,busco,manual}``: QC tool used (default: manual)
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Notes:
 
@@ -161,18 +161,18 @@ Add taxonomic classifications to bins.
 
 .. code-block:: bash
 
-   metabintools import taxonomy BINFILE --taxonomy FILE --tool TOOL [OPTIONS]
+   metabintools import taxonomy BINSFILE --taxonomy FILE --tool TOOL [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to add taxonomy to (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to add taxonomy to (use ``-`` for stdin)
 
 Options:
 
 - ``--taxonomy FILE``: Taxonomy file (required)
 - ``--tool {gtdbtk,gtdbtk_ncbi,manual}``: Taxonomy tool used (default: manual)
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Notes:
 
@@ -189,7 +189,7 @@ Example:
 Export Commands
 ===============
 
-The ``export`` group contains commands for extracting data from binfiles.
+The ``export`` group contains commands for extracting data from BINS files.
 
 export fasta
 ------------
@@ -198,11 +198,11 @@ Export bins to individual FASTA files.
 
 .. code-block:: bash
 
-   metabintools export fasta BINFILE --outdir DIR [OPTIONS]
+   metabintools export fasta BINSFILE --outdir DIR [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to export (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to export (use ``-`` for stdin)
 
 Options:
 
@@ -224,11 +224,11 @@ Export bin annotations to GFF3 files.
 
 .. code-block:: bash
 
-   metabintools export gff BINFILE --outdir DIR [OPTIONS]
+   metabintools export gff BINSFILE --outdir DIR [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to export
+- ``BINSFILE``: BINS file to export
 
 Options:
 
@@ -248,11 +248,11 @@ Export contig-to-bin mapping in DAS_Tool format.
 
 .. code-block:: bash
 
-   metabintools export contig2bin BINFILE --output FILE [OPTIONS]
+   metabintools export contig2bin BINSFILE --output FILE [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to export (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to export (use ``-`` for stdin)
 
 Options:
 
@@ -271,21 +271,21 @@ Example:
 View Command
 ==============
 
-Filter bins from a binfile based on a query expression.
+Filter bins from a BINS file based on a query expression.
 
 .. code-block:: bash
 
-   metabintools view BINFILE [QUERY] [OPTIONS]
+   metabintools view BINSFILE [QUERY] [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to filter (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to filter (use ``-`` for stdin)
 - ``QUERY``: Filter expression (optional; if omitted, all bins are included)
 
 Options:
 
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 - ``--list-fields``: Show all available filter fields and exit
 
 Examples:
@@ -323,20 +323,20 @@ Available filter fields (see ``--list-fields`` for complete list):
 Merge Command
 =============
 
-Combine multiple binfiles into one.
+Combine multiple BINS files into one.
 
 .. code-block:: bash
 
-   metabintools merge BINFILES [BINFILES ...] [OPTIONS]
+   metabintools merge BINSFILES [BINSFILES ...] [OPTIONS]
 
 Arguments:
 
-- ``BINFILES``: Binfiles to merge
+- ``BINSFILES``: BINS files to merge
 
 Options:
 
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Example:
 
@@ -351,16 +351,16 @@ Remove contigs not referenced by any bin.
 
 .. code-block:: bash
 
-   metabintools trim BINFILE [OPTIONS]
+   metabintools trim BINSFILE [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to trim
+- ``BINSFILE``: BINS file to trim
 
 Options:
 
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Example:
 
@@ -375,18 +375,18 @@ Rename bins using a template with field injection.
 
 .. code-block:: bash
 
-   metabintools rename BINFILE --bin-name TEMPLATE [OPTIONS]
+   metabintools rename BINSFILE --bin-name TEMPLATE [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to rename bins in (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to rename bins in (use ``-`` for stdin)
 
 Options:
 
 - ``--bin-name, -n``: Rename template with field placeholders (required)
 - ``--list-fields``: Show available fields for templates
 - ``--compress, -z``: Compress output with zstd
-- ``--output, -o``: Output binfile path (default: stdout)
+- ``--output, -o``: Output BINS file path (default: stdout)
 
 Templates use field names in curly braces. Available fields can be listed with ``--list-fields``:
 
@@ -399,20 +399,20 @@ If multiple bins end up with the same name, numeric suffixes are added (_1, _2, 
 Summarise Commands
 ==================
 
-Generate summary reports from binfiles.
+Generate summary reports from BINS files.
 
 summarise bins
 --------------
 
-Create a TSV summary of bins in a binfile.
+Create a TSV summary of bins in a BINS file.
 
 .. code-block:: bash
 
-   metabintools summarise bins BINFILE --output FILE [OPTIONS]
+   metabintools summarise bins BINSFILE --output FILE [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to summarise (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to summarise (use ``-`` for stdin)
 
 Options:
 
@@ -429,15 +429,15 @@ Example:
 summarise contigs
 ------------------
 
-Create a TSV summary of contigs in a binfile.
+Create a TSV summary of contigs in a BINS file.
 
 .. code-block:: bash
 
-   metabintools summarise contigs BINFILE --output FILE
+   metabintools summarise contigs BINSFILE --output FILE
 
 Arguments:
 
-- ``BINFILE``: Binfile to summarise (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to summarise (use ``-`` for stdin)
 
 Options:
 
@@ -456,11 +456,11 @@ Create an aggregated TSV summary of bin groups, showing counts of bins at each M
 
 .. code-block:: bash
 
-   metabintools summarise groups BINFILE --output FILE [OPTIONS]
+   metabintools summarise groups BINSFILE --output FILE [OPTIONS]
 
 Arguments:
 
-- ``BINFILE``: Binfile to summarise (use ``-`` for stdin)
+- ``BINSFILE``: BINS file to summarise (use ``-`` for stdin)
 
 Options:
 
