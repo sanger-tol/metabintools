@@ -78,15 +78,15 @@ Add GFF3 annotations to contigs.
 
 .. code-block:: bash
 
-   metabintools import annotation BINSFILE GFF [OPTIONS]
+   metabintools import annotation --gff <GFF> BINSFILE [OPTIONS]
 
 Arguments:
 
 - ``BINSFILE``: BINS file to annotate (use ``-`` for stdin)
-- ``GFF``: GFF3 annotation file (path to file)
 
 Options:
 
+- ``--gff``: GFF3 annotation file (required)
 - ``--overwrite``: Overwrite existing annotations (flag, default: false)
 - ``--compress, -z``: Compress output with zstd
 - ``--output, -o``: Output BINS file path (default: stdout)
@@ -104,15 +104,15 @@ Add coverage data to contigs.
 
 .. code-block:: bash
 
-   metabintools import coverage BINSFILE COVERAGE [OPTIONS]
+   metabintools import coverage --coverage <TSV> --column-regex <str> BINSFILE [OPTIONS]
 
 Arguments:
 
 - ``BINSFILE``: BINS file to add coverage to (use ``-`` for stdin)
-- ``COVERAGE``: Coverage file from Metabat2's jgi_summarize_bam_depths script
 
 Options:
 
+- ``--coverage``: Coverage TSV file (required)
 - ``--tool {metabat}``: Tool that generated the coverage file (default: metabat)
 - ``--compress, -z``: Compress output with zstd
 - ``--output, -o``: Output BINS file path (default: stdout)
