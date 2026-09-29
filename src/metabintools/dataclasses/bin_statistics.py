@@ -17,10 +17,10 @@ class BinStatistics(BaseModel):
     n50: int | None = Field(None, ge=0, description="N50 of the bin")
     coverage: float | None = Field(None, gt=0, description="Coverage of the bin")
     completeness: float | None = Field(
-        None, gt=0, lt=1, description="Completeness of the bin"
+        None, ge=0, le=1, description="Completeness of the bin"
     )
     contamination: float | None = Field(
-        None, gt=0, lt=1, description="Contamination of the bin"
+        None, ge=0, le=1, description="Contamination of the bin"
     )
     quality_tool: QualityTool | None = Field(
         None, description="Quality tool used to assess the bin"
