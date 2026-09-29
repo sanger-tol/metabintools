@@ -11,10 +11,12 @@ def get_basename(file: Path | str) -> str:
     if isinstance(file, str):
         file = Path(file)
 
-    if file.suffix == ".gz":
-        return file.name.rsplit(".", 2)[0]
-    else:
-        return file.name.rsplit(".", 1)[0]
+    name = file.name
+    for ext in [".fasta.gz", ".fna.gz", ".fa.gz", ".fasta", ".fna", ".fa"]:
+        if name.endswith(ext):
+            return name[: -len(ext)]
+
+    return name
 
 
 def find_binsfiles(directory: Path) -> list[Path]:
