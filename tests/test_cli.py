@@ -6,6 +6,7 @@ import pytest
 from click.testing import CliRunner
 
 from metabintools.cli.cli import cli
+from metabintools.dataclasses.binset import BinSet
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
@@ -69,6 +70,12 @@ def taxonomy_file():
 def gff_file():
     """Path to test GFF file."""
     return TEST_DATA_DIR / "asm.gff"
+
+
+@pytest.fixture
+def coverage_file():
+    """Path to the coverage file."""
+    return TEST_DATA_DIR / "test.coverage.tsv"
 
 
 class TestImportCommands:
@@ -678,3 +685,137 @@ class TestPipingWorkflows:
         )
         assert result3.exit_code == 0
         assert len(list(fasta_dir.glob("*.fa*"))) > 0
+
+
+class TestImportCoverageCommand:
+    """Tests for the import coverage CLI command."""
+
+    def test_import_coverage_success(self, cli_runner, test_binset_file, coverage_file, tmp_path):
+        """Test successful coverage import."""
+        output_file = tmp_path / "output.bins"
+        result = cli_runner.invoke(
+            cli,
+            [
+                "import",
+                "coverage",
+                "--coverage",
+                str(coverage_file),
+                "--tool",
+                "metabat",
+                "--column-regex",
+                "test.bam$",
+                "--output",
+                str(output_file),
+                str(test_binset_file),
+            ],
+        )
+        assert result.exit_code == 0
+        assert output_file.exists()
+
+    def test_import_coverage_compress_option(self, cli_runner, test_binset_file, coverage_file, tmp_path):
+        """Test coverage import with compress flag."""
+        output_file = tmp_path / "output.bins.zstd"
+        result = cli_runner.invoke(
+            cli,
+            [
+                "import",
+                "coverage",
+                "--coverage",
+                str(coverage_file),
+                "--tool",
+                "metabat",
+                "--column-regex",
+                "test.bam$",
+                "--compress",
+                "--output",
+                str(output_file),
+                str(test_binset_file),
+            ],
+        )
+        assert result.exit_code == 0
+
+    def test_import_coverage_stdout(self, cli_runner, test_binset_file, coverage_file):
+        """Test coverage import output to stdout."""
+        result = cli_runner.invoke(
+            cli,
+            [
+                "import",
+                "coverage",
+                "--coverage",
+                str(coverage_file),
+                "--tool",
+                "metabat",
+                "--column-regex",
+                "test.bam$",
+                str(test_binset_file),
+            ],
+        )
+        assert result.exit_code == 0
+
+    def test_import_coverage_missing_coverage(self, cli_runner, test_binset_file):
+        """Test coverage import fails without coverage option."""
+        result = cli_runner.invoke(
+            cli,
+            [
+                "import",
+                "coverage",
+                "--tool",
+                "metabat",
+                "--column-regex",
+                "test.bam$",
+                str(test_binset_file),
+            ],
+        )
+        assert result.exit_code != 0
+
+    def test_import_coverage_missing_column_regex(self, cli_runner, test_binset_file, coverage_file):
+        """Test coverage import fails without column-regex option."""
+        result = cli_runner.invoke(
+            cli,
+            [
+                "import",
+                "coverage",
+                "--coverage",
+                str(coverage_file),
+                "--tool",
+                "metabat",
+                str(test_binset_file),
+            ],
+        )
+        assert result.exit_code != 0
+
+    def test_import_coverage_invalid_tool(self, cli_runner, test_binset_file, coverage_file):
+        """Test coverage import fails with invalid tool."""
+        result = cli_runner.invoke(
+            cli,
+            [
+                "import",
+                "coverage",
+                "--coverage",
+                str(coverage_file),
+                "--tool",
+                "invalid_tool",
+                "--column-regex",
+                "test.bam$",
+                str(test_binset_file),
+            ],
+        )
+        assert result.exit_code != 0
+
+    def test_import_coverage_missing_file(self, cli_runner, test_binset_file):
+        """Test coverage import fails with missing coverage file."""
+        result = cli_runner.invoke(
+            cli,
+            [
+                "import",
+                "coverage",
+                "--coverage",
+                "/nonexistent/file.tsv",
+                "--tool",
+                "metabat",
+                "--column-regex",
+                "test.bam$",
+                str(test_binset_file),
+            ],
+        )
+        assert result.exit_code != 0

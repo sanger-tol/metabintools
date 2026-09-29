@@ -63,6 +63,11 @@ def taxonomy_file():
     """Path to GTDB-Tk taxonomy file."""
     return TEST_DATA_DIR / "gtdbtk.tsv"
 
+@pytest.fixture
+def coverage_file():
+    """Path to the coverage file."""
+    return TEST_DATA_DIR / "test.coverage.tsv"
+
 
 @pytest.fixture
 def binset_with_quality(assembly_contigs, bin_files, quality_file):
@@ -774,3 +779,103 @@ class TestQualityTools:
             original_bin = with_quality.bins[i]
             assert bin.statistics.completeness == original_bin.statistics.completeness
             assert bin.statistics.contamination == original_bin.statistics.contamination
+
+
+class TestCoverageOperations:
+    """Tests for coverage data operations."""
+
+    def test_add_contig_coverage_basic(
+        self, assembly_contigs, bin_files, coverage_file
+    ):
+        """Test basic contig coverage addition."""
+        from metabintools.enums import CoverageTool
+
+        bins = parse_fasta_bins(bin_files, group="test", asm_contigs=assembly_contigs)
+        binset = BinSet(contigs=assembly_contigs, bins=bins)
+
+        # Add coverage data
+        with_coverage = binset.add_contig_coverage(
+            coverage_file, CoverageTool.metabat, "test.bam$"
+        )
+
+        # Verify coverage data was added
+        assert with_coverage is not None
+        for contig_id in with_coverage.contigs:
+            contig = with_coverage.contigs[contig_id]
+            if contig_id in ["contig1", "contig2"]:
+                # These contigs are in the coverage file
+                assert contig.coverage is not None
+                assert contig.coverage > 0
+
+    def test_add_contig_coverage_with_column_regex(
+        self, assembly_contigs, bin_files, coverage_file
+    ):
+        """Test coverage addition with different column regex patterns."""
+        from metabintools.enums import CoverageTool
+
+        bins = parse_fasta_bins(bin_files, group="test", asm_contigs=assembly_contigs)
+        binset = BinSet(contigs=assembly_contigs, bins=bins)
+
+        # Test with escaped dots regex
+        with_coverage = binset.add_contig_coverage(
+            coverage_file, CoverageTool.metabat, "test.bam$"
+        )
+        assert with_coverage is not None
+
+    def test_add_contig_coverage_preserves_existing_metadata(
+        self, assembly_contigs, bin_files, coverage_file
+    ):
+        """Test that coverage addition preserves existing bin/contig metadata."""
+        from metabintools.enums import CoverageTool
+
+        bins = parse_fasta_bins(bin_files, group="test", asm_contigs=assembly_contigs)
+        binset = BinSet(contigs=assembly_contigs, bins=bins)
+
+        # Add coverage
+        with_coverage = binset.add_contig_coverage(
+            coverage_file, CoverageTool.metabat, "test.bam$"
+        )
+
+        # Verify original metadata preserved
+        assert len(with_coverage.bins) == len(binset.bins)
+        assert len(with_coverage.contigs) == len(binset.contigs)
+        for i, bin in enumerate(with_coverage.bins):
+            original_bin = binset.bins[i]
+            assert bin.id == original_bin.id
+            assert bin.group == original_bin.group
+            assert len(bin.contigs) == len(original_bin.contigs)
+
+    def test_add_contig_coverage_roundtrip(
+        self, assembly_contigs, bin_files, coverage_file, tmp_path
+    ):
+        """Test that coverage data survives serialization/deserialization."""
+        from metabintools.enums import CoverageTool
+
+        bins = parse_fasta_bins(bin_files, group="test", asm_contigs=assembly_contigs)
+        binset = BinSet(contigs=assembly_contigs, bins=bins)
+
+        # Add coverage
+        with_coverage = binset.add_contig_coverage(
+            coverage_file, CoverageTool.metabat, "test.bam$"
+        )
+
+        # Get coverage values before serialization
+        coverage_before = {}
+        for contig_id, contig in with_coverage.contigs.items():
+            if contig.coverage is not None:
+                coverage_before[contig_id] = contig.coverage
+
+        # Serialize
+        outfile = tmp_path / "coverage.bins"
+        with open(outfile, "wb") as f:
+            BinSetExporter(with_coverage).write_binsfile(f, compress=False)
+
+        # Deserialize
+        with open(outfile, "rb") as f:
+            loaded = BinSet.read_binsfile(f)
+
+        # Verify coverage data preserved
+        for contig_id, coverage_value in coverage_before.items():
+            contig = loaded.contigs[contig_id]
+            assert contig.coverage is not None
+            assert contig.coverage == coverage_value

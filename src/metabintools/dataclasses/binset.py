@@ -107,7 +107,10 @@ class BinSet(BaseModel):
         return self.model_copy(update={"bins": out_bins + new_bins})
 
     def add_contig_coverage(
-        self, coverage_file: Path, coverage_tool: CoverageTool
+        self,
+        coverage_file: Path,
+        coverage_tool: CoverageTool,
+        column_regex: str,
     ) -> "BinSet":
         """Add coverage data to the BinSet from a coverage file.
 
@@ -122,6 +125,7 @@ class BinSet(BaseModel):
             contigs=self.contigs,
             coverage_file=coverage_file,
             coverage_tool=coverage_tool,
+            column_regex=column_regex,
         )
         return self.model_copy(update={"contigs": new_contigs})
 

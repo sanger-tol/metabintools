@@ -30,6 +30,12 @@ from metabintools.export.binset_exporter import BinSetExporter
     required=False,
     default=CoverageTool.metabat,
 )
+@click.option(
+    "--column-regex",
+    type=str,
+    help="A regular expression that uniquely identifies the sample coverage column in the coverage input file.",
+    required=True,
+)
 @click.option("--output", "-o", type=click.File("wb"), default="-", required=False)
 @click.argument(
     "binsfile",
@@ -43,6 +49,7 @@ def import_coverage(
     coverage: str,
     output: IO,
     tool: CoverageTool,
+    column_regex: str,
     compress: bool = False,
 ):
     """Add quality scores to a BINS file from a coverage file.
@@ -54,7 +61,7 @@ def import_coverage(
         binset = BinSet.read_binsfile(binsfile)
 
         logger.info(f"Adding coverage data from {Path(coverage).name}...")
-        out_binset = binset.add_contig_coverage(Path(coverage), tool)
+        out_binset = binset.add_contig_coverage(Path(coverage), tool, column_regex)
 
         logger.info("Updating statistics...")
         out_binset = out_binset.update_statistics()
