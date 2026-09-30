@@ -17,7 +17,7 @@ class Contig(BaseModel):
     topology: Literal["linear", "circular"] | None = Field(
         None, description="Topology of the contig."
     )
-    coverage: Annotated[float, Field(gt=0)] | None = Field(
+    coverage: Annotated[float, Field(ge=0)] | None = Field(
         None, description="Depth of the contig in the originating sample."
     )
     annotations: list[Annotation] | None = Field(

@@ -15,7 +15,7 @@ class BinStatistics(BaseModel):
         None, ge=0, description="Number of circular contigs in the bin"
     )
     n50: int | None = Field(None, ge=0, description="N50 of the bin")
-    coverage: float | None = Field(None, gt=0, description="Coverage of the bin")
+    coverage: float | None = Field(None, ge=0, description="Coverage of the bin")
     completeness: float | None = Field(
         None, ge=0, le=1, description="Completeness of the bin"
     )

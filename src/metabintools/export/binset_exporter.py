@@ -30,6 +30,8 @@ class BinSetExporter:
         else:
             file.write(json_bytes)
 
+        file.flush()
+
     def export_fasta(
         self,
         outdir: Path,

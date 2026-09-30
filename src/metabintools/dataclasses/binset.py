@@ -36,6 +36,8 @@ class BinSet(BaseModel):
     @field_validator("bins")
     def validate_bin_contigs(cls, bins, info):
         """Validate that all bin contigs are present in the assembly."""
+        if "contigs" not in info.data:
+            return bins
         assembly_ids = {c for c in info.data["contigs"]}
         if bins:
             for bin in bins:
