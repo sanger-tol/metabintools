@@ -42,4 +42,4 @@ def merge_binsets(binsets: list[BinSet]) -> BinSet:
                 logger.debug(f"Adding bin {bin.id}")
                 out_bins[bin.id] = bin
 
-    return BinSet(contigs=out_contigs, bins=list(out_bins.values()))
+    return BinSet(contigs=out_contigs, bins=list(out_bins.values()))._sort_all()

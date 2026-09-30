@@ -73,6 +73,78 @@ class BinSet(BaseModel):
         json_str = json_bytes.decode()
         return cls.model_validate_json(json_str)
 
+    def _update_binset(self, bins: list[Bin] | None) -> "BinSet":
+        """Update the binset with a new list of bins, sorted by length.
+
+        Args:
+            bins: A list of bins to update the binset with, or None
+
+        Returns:
+            A new BinSet with the bins sorted by total length (longest first).
+        """
+        if bins is None:
+            return self.model_copy(update={"bins": None})
+
+        sorted_bins = sorted(
+            bins,
+            key=lambda bin: (
+                bin.statistics.length if bin.statistics and bin.statistics.length else 0
+            ),
+            reverse=True,
+        )
+        return self.model_copy(update={"bins": sorted_bins})
+
+    def _update_contigs(self, contigs: dict[str, Contig]) -> "BinSet":
+        """Update the binset with a new dict of contigs, sorted by length.
+
+        Args:
+            contigs: A dict of contig ID to Contig to update the binset with
+
+        Returns:
+            A new BinSet with the contigs sorted by sequence length (longest first).
+        """
+        sorted_contigs = dict(
+            sorted(
+                contigs.items(),
+                key=lambda item: (
+                    item[1].sequence_length if item[1].sequence_length else 0
+                ),
+                reverse=True,
+            )
+        )
+        return self.model_copy(update={"contigs": sorted_contigs})
+
+    def _sort_all(self) -> "BinSet":
+        """Sort both contigs and bins by length in a single operation.
+
+        Returns:
+            A new BinSet with contigs and bins sorted by length (longest first).
+        """
+        sorted_contigs = dict(
+            sorted(
+                self.contigs.items(),
+                key=lambda item: (
+                    item[1].sequence_length if item[1].sequence_length else 0
+                ),
+                reverse=True,
+            )
+        )
+
+        if self.bins is None:
+            sorted_bins = None
+        else:
+            sorted_bins = sorted(
+                self.bins,
+                key=lambda bin: (
+                    bin.statistics.length
+                    if bin.statistics and bin.statistics.length
+                    else 0
+                ),
+                reverse=True,
+            )
+
+        return self.model_copy(update={"contigs": sorted_contigs, "bins": sorted_bins})
+
     def add_contig_annotations(self, gff: Path, overwrite: bool = False) -> "BinSet":
         """Annotate the contigs in the BinSet with the given GFF file.
 
@@ -81,10 +153,10 @@ class BinSet(BaseModel):
             overwrite: Whether to overwrite existing annotations
 
         Returns:
-            BinSet: A new BinSet with annotated contigs
+            BinSet: A new BinSet with annotated contigs sorted by length
         """
         new_contigs = ContigAnnotator().annotate_contigs(self.contigs, gff, overwrite)
-        return self.model_copy(update={"contigs": new_contigs})
+        return self._update_contigs(new_contigs)
 
     def add_bins_from_fasta(
         self,
@@ -101,12 +173,11 @@ class BinSet(BaseModel):
             binsplit_separator: Separator to use for splitting contigs
 
         Returns:
-            A new BinSet with the bins added
+            A new BinSet with the bins added and sorted by length
         """
         out_bins = [] if self.bins is None else self.bins
         new_bins = parse_fasta_bins(fasta, group, self.contigs, binsplit_separator)
-
-        return self.model_copy(update={"bins": out_bins + new_bins})
+        return self._update_binset(out_bins + new_bins)
 
     def add_contig_coverage(
         self,
@@ -121,7 +192,7 @@ class BinSet(BaseModel):
             coverage_tool: Tool used to generate the coverage file
 
         Returns:
-            A new BinSet with the coverage data added
+            A new BinSet with the coverage data added and contigs sorted by length
         """
         new_contigs = CoverageReader().add_coverage(
             contigs=self.contigs,
@@ -129,7 +200,7 @@ class BinSet(BaseModel):
             coverage_tool=coverage_tool,
             column_regex=column_regex,
         )
-        return self.model_copy(update={"contigs": new_contigs})
+        return self._update_contigs(new_contigs)
 
     def add_bin_quality_scores(
         self, quality_file: Path, qc_tool: QualityTool
@@ -143,7 +214,7 @@ class BinSet(BaseModel):
             quality_file=quality_file,
             qc_tool=qc_tool,
         )
-        return self.model_copy(update={"bins": new_bins})
+        return self._update_binset(new_bins)
 
     def add_bin_taxonomy(
         self, taxonomy_file: Path, taxonomy_source: str | None
@@ -157,17 +228,15 @@ class BinSet(BaseModel):
             taxonomy_file=taxonomy_file,
             taxonomy_source=taxonomy_source,
         )
-        return self.model_copy(update={"bins": new_bins})
+        return self._update_binset(new_bins)
 
     def filter_bins(self, query: str) -> "BinSet":
         if self.bins is None:
             return self.model_copy(update={"bins": None})
 
         filter_func = parse_filter_query(query)
-
         filtered_bins = [bin for bin in self.bins if filter_func(bin)]
-
-        return self.model_copy(update={"bins": filtered_bins})
+        return self._update_binset(filtered_bins)
 
     def rename_bins(self, template: str) -> "BinSet":
         """Rename bins using a template with field name injection.
@@ -181,7 +250,7 @@ class BinSet(BaseModel):
                      phylum, taxon_name, and other bin/statistics/taxonomy fields.
 
         Returns:
-            A new BinSet with renamed bins
+            A new BinSet with renamed bins sorted by length
 
         Raises:
             ValueError: If the template contains invalid field references
@@ -198,7 +267,7 @@ class BinSet(BaseModel):
             return self
 
         renamed_bins = apply_rename_bins(self.bins, template)
-        return self.model_copy(update={"bins": renamed_bins})
+        return self._update_binset(renamed_bins)
 
     def remove_unreferenced_contigs(self) -> "BinSet":
         """Trim the BinSet to remove contigs not used by any bin."""
@@ -207,16 +276,16 @@ class BinSet(BaseModel):
             for contig_id, contig in self.contigs.items()
             if contig_id in self.bin_contig_ids
         }
-        return self.model_copy(update={"contigs": output_contigs})
+        return self._update_contigs(output_contigs)
 
     def update_statistics(self) -> "BinSet":
         """Update the statistics for each bin in the BinSet.
 
         Returns:
-            A new BinSet instance with updated bin statistics.
+            A new BinSet instance with updated bin statistics and sorted by length.
         """
         if self.bins is None:
             return self.model_copy()
 
         updated_bins = [bin.update_statistics(self.contigs) for bin in self.bins]
-        return self.model_copy(update={"bins": updated_bins})
+        return self._update_binset(updated_bins)

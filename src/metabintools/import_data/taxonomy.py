@@ -20,6 +20,7 @@ class TaxonomyReader:
         out_taxonomy = {}
         with open(file, "r") as f:
             reader = csv.DictReader(f, delimiter="\t")
+            print(reader.fieldnames)
             for result in reader:
                 bin_name = get_basename(result[bin_name_column])
                 out_taxonomy[bin_name] = BinTaxonomy(

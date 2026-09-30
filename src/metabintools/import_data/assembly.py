@@ -19,7 +19,7 @@ def parse_assembly_fasta(
         assembler: The assembler used to generate the assembly.
 
     Returns:
-        A list of Contig objects.
+        A dict of Contig objects sorted by sequence length (longest first).
     """
     _CIRCULAR_REGEX = {
         "myloasm": re.compile(r"circular-yes|circular-possibly"),
@@ -53,4 +53,11 @@ def parse_assembly_fasta(
         )
         contigs[id] = contig
 
-    return contigs
+    sorted_contigs = dict(
+        sorted(
+            contigs.items(),
+            key=lambda item: item[1].sequence_length,
+            reverse=True,
+        )
+    )
+    return sorted_contigs
