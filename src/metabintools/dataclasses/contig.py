@@ -1,6 +1,12 @@
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, StringConstraints, computed_field
+from pydantic import (
+    BaseModel,
+    Field,
+    StringConstraints,
+    computed_field,
+    model_validator,
+)
 
 from metabintools.dataclasses.annotation import Annotation
 
@@ -23,13 +29,18 @@ class Contig(BaseModel):
     annotations: list[Annotation] | None = Field(
         None, description="Annotations of the contig."
     )
+    gc: float | None = Field(
+        None,
+        description="GC content (0.0-1.0). Computed from the sequence when not provided.",
+    )
 
-    @computed_field
-    @property
-    def gc(self) -> float:
-        return (
-            self.sequence.count("G") + self.sequence.count("C")
-        ) / self.sequence_length
+    @model_validator(mode="after")
+    def _compute_gc(self) -> "Contig":
+        if self.gc is None:
+            self.gc = (
+                self.sequence.count("G") + self.sequence.count("C")
+            ) / self.sequence_length
+        return self
 
     @computed_field
     @property

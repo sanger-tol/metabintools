@@ -66,12 +66,12 @@ class BinSet(BaseModel):
 
         try:
             dctx = zstd.ZstdDecompressor()
-            json_bytes = dctx.decompress(data)
+            json_bytes = dctx.stream_reader(data).read()
         except zstd.ZstdError:
             json_bytes = data
+        del data
 
-        json_str = json_bytes.decode()
-        return cls.model_validate_json(json_str)
+        return cls.model_validate_json(json_bytes)
 
     def _update_binset(self, bins: list[Bin] | None) -> "BinSet":
         """Update the binset with a new list of bins, sorted by length.
@@ -271,10 +271,11 @@ class BinSet(BaseModel):
 
     def remove_unreferenced_contigs(self) -> "BinSet":
         """Trim the BinSet to remove contigs not used by any bin."""
+        bin_contig_ids = self.bin_contig_ids
         output_contigs = {
             contig_id: contig
             for contig_id, contig in self.contigs.items()
-            if contig_id in self.bin_contig_ids
+            if contig_id in bin_contig_ids
         }
         return self._update_contigs(output_contigs)
 

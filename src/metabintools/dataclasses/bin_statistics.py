@@ -49,7 +49,7 @@ class BinStatistics(BaseModel):
         ):
             conditions = {
                 MiMAG.HIGH: (
-                    self.contamination <= 5
+                    self.contamination <= 0.05
                     and self.n_unique_trnas >= 18
                     and self.has_5s
                     and self.has_16s

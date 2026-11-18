@@ -5,6 +5,14 @@ from typing import IO
 import click
 import zstandard as zstd
 from loguru import logger
+from pydantic import TypeAdapter
+
+from metabintools.dataclasses.bin import Bin
+from metabintools.dataclasses.contig import Contig
+
+_STR_ADAPTER = TypeAdapter(str)
+_CONTIG_ADAPTER = TypeAdapter(Contig)
+_BIN_ADAPTER = TypeAdapter(Bin)
 
 
 class BinSetExporter:
@@ -15,22 +23,43 @@ class BinSetExporter:
         """
         Write the BinSet to a binary stream, optionally compressing it with zstd.
 
+        The JSON is streamed one contig or bin at a time, so the full document is
+        never held in memory.
+
         Args:
             file: Binary output stream (file-like object)
             compress: Whether to compress the output
             level: Compression level (default: 3)
         """
-        json_str = self.binset.model_dump_json()
-        json_bytes = json_str.encode()
-
         if compress:
             cctx = zstd.ZstdCompressor(level=level)
-            compressed_data = cctx.compress(json_bytes)
-            file.write(compressed_data)
+            with cctx.stream_writer(file, closefd=False) as writer:
+                self._write_json(writer)
         else:
-            file.write(json_bytes)
+            self._write_json(file)
 
         file.flush()
+
+    def _write_json(self, out: IO):
+        out.write(b'{"contigs":{')
+        for i, (contig_id, contig) in enumerate(self.binset.contigs.items()):
+            if i:
+                out.write(b",")
+            out.write(_STR_ADAPTER.dump_json(contig_id))
+            out.write(b":")
+            out.write(_CONTIG_ADAPTER.dump_json(contig))
+        out.write(b'},"bins":')
+
+        if self.binset.bins is None:
+            out.write(b"null")
+        else:
+            out.write(b"[")
+            for i, bin in enumerate(self.binset.bins):
+                if i:
+                    out.write(b",")
+                out.write(_BIN_ADAPTER.dump_json(bin))
+            out.write(b"]")
+        out.write(b"}")
 
     def export_fasta(
         self,

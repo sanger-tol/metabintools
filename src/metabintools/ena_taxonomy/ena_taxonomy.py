@@ -7,6 +7,7 @@ from loguru import logger
 
 class EnaSubmittableTaxonomy:
     _query_cache: ClassVar[dict] = {}  # Cache for _ena_query_taxon results
+    _suggest_cache: ClassVar[dict] = {}  # Cache for suggest-for-submission responses
     _lineage_cache: ClassVar[dict] = {}  # Cache for ena_suggest_lineage_taxid results
 
     def ena_suggest_lineage_taxid(self, lineage: str) -> dict:
@@ -46,8 +47,10 @@ class EnaSubmittableTaxonomy:
         if not taxid_results:
             raise ValueError(f"Could not get a taxname for lineage: {lineage}")
 
-        # Sort to prioritize non-uncultured names
-        taxid_results.sort(key=lambda x: "uncultured" in x["scientificName"].lower())
+        # Sort to prioritize non-uncultured names (sorted() avoids mutating cached lists)
+        taxid_results = sorted(
+            taxid_results, key=lambda x: "uncultured" in x["scientificName"].lower()
+        )
 
         result = {
             "taxId": taxid_results[0]["taxId"],
@@ -70,11 +73,14 @@ class EnaSubmittableTaxonomy:
                 continue
 
             if level == 0:  # Species level
-                return self._ena_query_taxon(taxon)
+                results = self._ena_query_taxon(taxon)
             elif level == 1:  # Genus level
-                return self._ena_get_submittable_taxon(taxon, " sp.")
+                results = self._ena_get_submittable_taxon(taxon, " sp.")
             else:  # Higher levels
-                return self._ena_get_submittable_taxon(taxon, organism)
+                results = self._ena_get_submittable_taxon(taxon, organism)
+
+            if results:
+                return results
 
         return []
 
@@ -130,11 +136,13 @@ class EnaSubmittableTaxonomy:
         ]
 
         for candidate in search_space:
-            url = f"https://www.ebi.ac.uk/ena/taxonomy/rest/suggest-for-submission/{candidate}"
-            response = requests.get(url)
-            response.raise_for_status()
+            if candidate not in self._suggest_cache:
+                url = f"https://www.ebi.ac.uk/ena/taxonomy/rest/suggest-for-submission/{candidate}"
+                response = requests.get(url)
+                response.raise_for_status()
+                self._suggest_cache[candidate] = response.json()
 
-            results = self._filter_ena_query(taxon, response.json())
+            results = self._filter_ena_query(taxon, self._suggest_cache[candidate])
             if results:
                 return results
 
