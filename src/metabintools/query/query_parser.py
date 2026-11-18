@@ -120,13 +120,18 @@ def parse_filter_query(query: str) -> Callable[[Bin], bool]:
             "quotes, and parentheses are allowed."
         )
 
+    try:
+        code = compile(query, "<filter>", "eval")
+    except SyntaxError as e:
+        raise ValueError(f"Invalid filter query: {e}")
+
     def filter_func(bin: Bin) -> bool:
         context = FilterContext(bin=bin)
         try:
             # Use eval with restricted globals/locals for safety
             # We only allow access to the context object and built-in functions
             result = eval(
-                query,
+                code,
                 {
                     "__builtins__": {
                         "True": True,

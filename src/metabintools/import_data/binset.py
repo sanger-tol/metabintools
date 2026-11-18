@@ -48,8 +48,7 @@ def parse_fasta_bins(
         output_bins.append(bin_obj)
 
     logger.info(f"Parsed {len(output_bins)} bins.")
-    if logger.level == "DEBUG":
-        for bin in output_bins:
-            logger.debug(f"Parsed bin: {bin.id}")
+    for bin in output_bins:
+        logger.debug(f"Parsed bin: {bin.id}")
 
     return output_bins
