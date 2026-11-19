@@ -86,8 +86,8 @@ Arguments:
 
 Options:
 
-- ``--gff``: GFF3 annotation file (required)
-- ``--overwrite``: Overwrite existing annotations (flag, default: false)
+- ``--gff``: GFF3 annotation file (required). Can be specified multiple times.
+- ``--overwrite``: Overwrite all existing annotations (flag, default: false)
 - ``--compress, -z``: Compress output with zstd
 - ``--output, -o``: Output BINS file path (default: stdout)
 
