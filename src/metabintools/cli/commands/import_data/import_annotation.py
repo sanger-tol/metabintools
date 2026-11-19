@@ -20,12 +20,14 @@ from metabintools.export.binset_exporter import BinSetExporter
 @click.option(
     "--gff",
     type=click.Path(exists=True, dir_okay=False, file_okay=True),
-    help="The GFF file to add the annotations from.",
+    help="A GFF file to add the annotations from. Can be supplied multiple times.",
     required=True,
+    multiple=True,
 )
 @click.option(
     "--overwrite",
-    type=bool,
+    is_flag=True,
+    default=False,
     help="Overwrite existing annotations if they already exist",
     required=False,
 )
@@ -38,21 +40,28 @@ from metabintools.export.binset_exporter import BinSetExporter
     help="Input BINS file to add annotations to.",
 )
 def import_annotation(
-    binsfile: IO, gff: str, output: IO, compress: bool = False, overwrite: bool = False
+    binsfile: IO,
+    gff: tuple[str, ...],
+    output: IO,
+    compress: bool = False,
+    overwrite: bool = False,
 ):
-    """Add annotations from a GFF file to a BINS file"""
+    """Add annotations from one or more GFF files to a BINS file"""
     try:
         logger.info("Reading BINS file...")
-        binset = BinSet.read_binsfile(binsfile)
+        annotated_binset = BinSet.read_binsfile(binsfile)
 
-        logger.info(f"Adding annotations from {Path(gff).name}...")
-        try:
-            annotated_binset = binset.add_contig_annotations(
-                Path(gff), overwrite=overwrite
-            )
-        except (ValueError, KeyError) as e:
-            logger.error(f"Failed to add annotations: {e}")
-            raise click.ClickException(f"Failed to add annotations: {e}")
+        for i, gff_path in enumerate(gff):
+            logger.info(f"Adding annotations from {Path(gff_path).name}...")
+            try:
+                # Only the first file may overwrite; later files append so that
+                # annotations from earlier GFFs are not discarded.
+                annotated_binset = annotated_binset.add_contig_annotations(
+                    Path(gff_path), overwrite=overwrite and i == 0
+                )
+            except (ValueError, KeyError) as e:
+                logger.error(f"Failed to add annotations: {e}")
+                raise click.ClickException(f"Failed to add annotations: {e}")
 
         logger.info("Updating statistics...")
         annotated_binset = annotated_binset.update_statistics()

@@ -1,0 +1,62 @@
+name: Run pytest
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  uv-example:
+    name: python
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.13"
+          - "3.14"
+          - "3.15"
+    defaults:
+      run:
+        shell: bash -eo pipefail -l {0}
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            python3-dev \
+            libbz2-dev \
+            liblzma-dev \
+            libcurl4-gnutls-dev \
+            libssl-dev \
+            zlib1g-dev
+
+      - name: Conda setup
+        uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3
+        with:
+          conda-solver: libmamba
+          channels: conda-forge,bioconda,nodefaults
+          channel-priority: strict
+          conda-remove-defaults: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Run tests
+        run: |
+          uv run pytest tests
